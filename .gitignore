@@ -1,0 +1,22 @@
+# Environment
+.env
+
+# Generated data (large files)
+data/
+results/*.csv
+!results/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Claude Code memory files
+**/CLAUDE.md

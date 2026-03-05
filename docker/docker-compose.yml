@@ -1,0 +1,37 @@
+services:
+  db:
+    # Pinned to PG17 — avoids surprises from major PG upgrades in latest
+    image: paradedb/paradedb:latest-pg17
+    container_name: cse239-bench
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bench}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-benchpass}
+      POSTGRES_DB: ${POSTGRES_DB:-search_bench}
+    ports:
+      - "5432:5432"
+    shm_size: "2g"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../data:/data
+    command: >
+      postgres
+        -c shared_preload_libraries='pg_search'
+        -c shared_buffers=512MB
+        -c effective_cache_size=1536MB
+        -c work_mem=64MB
+        -c maintenance_work_mem=512MB
+        -c max_parallel_workers_per_gather=2
+        -c max_parallel_maintenance_workers=2
+        -c random_page_cost=1.1
+        -c checkpoint_completion_target=0.9
+        -c wal_buffers=16MB
+        -c log_min_duration_statement=-1
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-bench} -d $${POSTGRES_DB:-search_bench}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
